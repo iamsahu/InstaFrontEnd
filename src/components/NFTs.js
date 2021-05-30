@@ -3,7 +3,10 @@ import { gql, useQuery } from "@apollo/client";
 
 const GETNFTs = gql`
 	query MyQuery($address: String) {
-		test_schema_test_data(where: { userAddress: { _eq: $address } }) {
+		test_schema_test_data(
+			where: { userAddress: { _eq: $address } }
+			order_by: { createdAt: desc }
+		) {
 			caption
 			fileIPFS
 			fileURL
