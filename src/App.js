@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import DepositBox from "./contracts/DepositBox.json";
 import detectEthereumProvider from "@metamask/detect-provider";
@@ -7,6 +7,7 @@ import Web3 from "web3";
 import NFTs from "./components/NFTs";
 
 import "./App.css";
+import { supportsResultCaching } from "@apollo/client/cache/inmemory/entityStore";
 
 function App() {
 	const [metamaskConnected, setMetamaskConnected] = useState(false);
@@ -17,31 +18,34 @@ function App() {
 	var ethereum, web3;
 
 	// const provider = await detectEthereumProvider();
+	if (typeof window.ethereum !== "undefined") {
+		ethereum = window.ethereum;
+		web3 = new Web3(ethereum);
 
+		ethereum.on("accountsChanged", (accounts) => {
+			// Handle the new accounts, or lack thereof.
+			// "accounts" will always be an array, but it can be empty.
+			account.current = accounts[0];
+			console.log(accounts);
+		});
+
+		ethereum.on("chainChanged", (chainId) => {
+			// Handle the new chain.
+			// Correctly handling chain changes can be complicated.
+			// We recommend reloading the page unless you have good reason not to.
+			window.location.reload();
+		});
+
+		ethereum.on("connect", (chainId) => {
+			console.log(chainId);
+			if (ethereum.isConnected()) setMetamaskConnected(true);
+		});
+	}
 	useEffect(() => {
 		// if (provider)
+		setMetamaskInstalled(true);
+		account.current = ethereum.selectedAddress;
 		if (typeof window.ethereum !== "undefined") {
-			setMetamaskInstalled(true);
-			ethereum = window.ethereum;
-			web3 = new Web3(ethereum);
-			ethereum.on("accountsChanged", (accounts) => {
-				// Handle the new accounts, or lack thereof.
-				// "accounts" will always be an array, but it can be empty.
-				account.current = accounts[0];
-				console.log(accounts);
-			});
-
-			ethereum.on("chainChanged", (chainId) => {
-				// Handle the new chain.
-				// Correctly handling chain changes can be complicated.
-				// We recommend reloading the page unless you have good reason not to.
-				window.location.reload();
-			});
-
-			ethereum.on("connect", (chainId) => {
-				console.log(chainId);
-				if (ethereum.isConnected()) setMetamaskConnected(true);
-			});
 		}
 	});
 
@@ -105,7 +109,7 @@ function App() {
 		);
 		const response = await contract.methods.balanceOf(account.current).call();
 		// .send({ from: account.current, value: web3.utils.toWei("0.1", "ether") });
-		console.log(response);
+		return <h6>{response}</h6>;
 	}
 
 	async function Withdraw() {
@@ -134,44 +138,104 @@ function App() {
 	}
 
 	return (
-		<div className="flex p-2 flex-col justify-center">
-			<div className="grid grid-cols-3">
-				<div className="col-start-1 col-span-4">
-					<div className="flex flex-col justify-center">
-						<h1 className="flex justify-center">
-							Donate crypto to assist India's fight against covid.
-						</h1>
-						<h1 className="flex justify-center">Current donations ETH</h1>
+		<div className="row-auto font-mono">
+			<div className="h-96 flex bg-gradient-to-r from-purple-800 via-green-600 to-green-300 flex-wrap place-content-center">
+				<h1 className="text-8xl font-semibold text-white">
+					Welcome to InstaNFT!
+				</h1>
+			</div>
+			{metamaskInstalled ? (
+				metamaskConnected ? (
+					<div className="row-auto">
+						<div>Balance:{GetBalance}</div>
+						<div className="bg-green-900 text-white font-medium text-6xl p-2">
+							Here are your minted NFTs!
+						</div>
+						<NFTs address={ethereum.selectedAddress} />
 					</div>
-					<br />
-					{/* <TwitterTweetEmbed tweetId={"1385968552679727113"} /> */}
-					<div className="flex justify-center">
-						{metamaskInstalled ? (
-							metamaskConnected ? (
-								<div>
-									<div>Connected!</div>
-									<div>
-										<button onClick={Store}>Store</button>
-										<button onClick={Value}>Value</button>
-										<button onClick={Deposit}>Deposit</button>
-										<button onClick={GetBalance}>GetBalance</button>
-										<button onClick={Withdraw}>Withdraw</button>
-										<br />
-										<NFTs address={account.current} />
-									</div>
-								</div>
-							) : (
-								// "Your account is connected"
-								<button
-									onClick={ConnectWallet}
-									className="hover:bg-blue-dark text-white font-bold py-2 px-4 rounded bg-blue-500"
-								>
-									Connect Wallet to donate!
-								</button>
-							)
-						) : (
-							"Please Install Metamask"
-						)}
+				) : (
+					// "Your account is connected"
+					<div className="p-2 flex flex-wrap place-content-center">
+						<button
+							onClick={ConnectWallet}
+							className="hover:bg-blue-dark text-white font-bold py-2 px-4 rounded bg-blue-500 "
+						>
+							Connect Wallet to see your NFTs!
+						</button>
+					</div>
+				)
+			) : (
+				"Please Install Metamask"
+			)}
+			<div className="flex bg-green-900 flex-wrap place-content-center p-4">
+				<h1 className="text-6xl font-semibold text-white">How it works!</h1>
+			</div>
+			<div className="flex bg-green-300 flex-wrap place-content-center p-4">
+				<div className="grid grid-cols-3 gap-4 bg-green-300 px-4 py-6">
+					<div className="blogs bg-white mr-5" key="1">
+						<img
+							src="https://i.imgur.com/YQxI6cK.png"
+							alt="sda"
+							className="h-96 object-contain object-center"
+						/>
+						<div className="p-5">
+							<p className="bg-white text-sm text-black overflow-ellipsis font-semibold">
+								Step 1
+							</p>
+							<p className="bg-white text-sm text-black overflow-ellipsis">
+								Create an applet on IFTTT connecting instagram to a web request!
+							</p>
+						</div>
+					</div>
+					<div className="blogs bg-white mr-5" key="2">
+						<img
+							src="https://i.imgur.com/IrptDRt.png"
+							alt="sda"
+							className="h-96 object-contain object-center"
+						/>
+						<div className="p-5">
+							<p className="bg-white text-sm text-black overflow-ellipsis font-semibold">
+								Step 2
+							</p>
+							<p className="bg-white text-sm text-black overflow-ellipsis">
+								Choose tag as a trigger in instagram and add nft as the tag
+							</p>
+						</div>
+					</div>
+					<div className="blogs bg-white mr-5" key="3">
+						<img
+							src="https://imgur.com/Hab1pvy.png"
+							alt="sda"
+							className="h-96 object-contain object-center"
+						/>
+						<div className="p-5">
+							<p className="bg-white text-sm text-black overflow-ellipsis font-semibold">
+								Step 3
+							</p>
+							<p className="bg-white text-sm text-black overflow-ellipsis">
+								Configure the webhook as shown in the image. Just provide your
+								wallet address in the appropriate location! Please find the text
+								below
+							</p>
+							<br />
+							<p className="truncate text-xs">
+								URL:https://xlfyb84p9j.execute-api.ap-south-1.amazonaws.com/default/createNFT
+								<br />
+								Body:
+								<br />
+								&#123;
+								<br /> "caption":&#123;&#123;Caption&#125;&#125;,
+								<br />
+								"url":&#123;&#123;Url&#125;&#125;, <br />
+								"SourceUrl":&#123;&#123;SourceUrl&#125;&#125;,
+								<br />
+								"CreatedAt":&#123;&#123;CreatedAt&#125;&#125;,
+								<br />
+								"address":"0x4033Fa14e9c72b8ab023911848B4041676D6f279"
+								<br />
+								&#125;
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -180,3 +244,13 @@ function App() {
 }
 
 export default App;
+{
+	/* <div>
+ <button onClick={Store}>Store</button>
+			<button onClick={Value}>Value</button>
+			<button onClick={Deposit}>Deposit</button>
+			<button onClick={GetBalance}>GetBalance</button>
+			<button onClick={Withdraw}>Withdraw</button> 
+<br />
+</div> */
+}
