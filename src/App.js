@@ -147,7 +147,7 @@ function App() {
 			{metamaskInstalled ? (
 				metamaskConnected ? (
 					<div className="row-auto">
-						<div>Balance:{GetBalance}</div>
+						{/* <div>Balance:{GetBalance}</div> */}
 						<div className="bg-green-900 text-white font-medium text-6xl p-2">
 							Here are your minted NFTs!
 						</div>
