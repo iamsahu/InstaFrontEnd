@@ -31,7 +31,9 @@ function NFTs(props) {
 					<div class="blogs bg-white mr-5 " key={val.id}>
 						<img src={val.fileURL} class="" />
 						<div class="p-5 ">
-							<h1 class="text-2xl font-bold text-green-800 py-2">{val.name}</h1>
+							<h1 class="text-2xl font-bold text-green-800 py-2 truncate">
+								{val.name}
+							</h1>
 							<p class="bg-white text-sm text-black truncate">{val.caption}</p>
 						</div>
 					</div>
