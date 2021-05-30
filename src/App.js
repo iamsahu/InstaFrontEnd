@@ -3,7 +3,6 @@ import SimpleStorageContract from "./contracts/SimpleStorage.json";
 import DepositBox from "./contracts/DepositBox.json";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
 import Web3 from "web3";
 import NFTs from "./components/NFTs";
 
